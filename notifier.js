@@ -1,12 +1,11 @@
 /**
  * 通知推送模块
- * 通过 Server酱 推送到微信
+ * 通过飞书机器人 Webhook 推送消息
  */
 
-class WeChatNotifier {
-  constructor(sendKey) {
-    this.sendKey = sendKey;
-    this.apiUrl = `https://sctapi.ftqq.com/${sendKey}.send`;
+class FeishuNotifier {
+  constructor(webhookUrl) {
+    this.webhookUrl = webhookUrl;
     this._lastSignalTime = null;
     this._lastSignalDirection = null;
     this._lastSignalPrice = 0;
@@ -14,15 +13,33 @@ class WeChatNotifier {
 
   async send(title, content = "") {
     try {
-      const body = new URLSearchParams({
-        title,
-        desp: content.replace(/\n/g, "\n\n"),
+      const body = JSON.stringify({
+        msg_type: "interactive",
+        card: {
+          header: {
+            title: { content: title, tag: "plain_text" },
+            template: title.includes("涨") || title.includes("买入") ? "red" : "blue",
+          },
+          elements: [
+            { tag: "markdown", content },
+            { tag: "hr" },
+            {
+              tag: "note",
+              elements: [
+                {
+                  tag: "plain_text",
+                  content: `BTC Monitor | ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}`,
+                },
+              ],
+            },
+          ],
+        },
       });
 
-      const resp = await fetch(this.apiUrl, {
+      const resp = await fetch(this.webhookUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
+        headers: { "Content-Type": "application/json" },
+        body,
       });
 
       const data = await resp.json();
@@ -42,25 +59,26 @@ class WeChatNotifier {
   async sendSignal(direction, price, indicatorDetails, strength, suggestedPosition) {
     const emoji = direction === "buy" ? "📈" : "📉";
     const action = direction === "buy" ? "买入" : "卖出";
+    const priceStr = price.toLocaleString("en-US", {
+      minimumFractionDigits: 2, maximumFractionDigits: 2,
+    });
 
     let indicatorText = "";
     for (const [name, val] of Object.entries(indicatorDetails)) {
-      indicatorText += `  ${val}\n`;
+      indicatorText += `**${name}**：${val}\n`;
     }
 
+    const title = `${emoji} BTC${action}信号 [${strength}]`;
+
     const content = [
-      `## 当前价格: $${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      `**当前价格：$${priceStr}**`,
       ``,
-      `### 触发指标:`,
+      `**触发指标：**`,
       indicatorText || `  综合趋势判断`,
       ``,
-      `---`,
-      ``,
-      `- 建议仓位: ${suggestedPosition} BTC`,
-      `- 时间: ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}`,
+      `建议仓位：${suggestedPosition} BTC`,
     ].join("\n");
 
-    const title = `${emoji} BTC${action}信号 [${strength}]`;
     const ok = await this.send(title, content);
 
     if (ok) {
@@ -74,15 +92,17 @@ class WeChatNotifier {
 
   async sendStatus(price, change24h) {
     const emoji = change24h >= 0 ? "🟢" : "🔴";
+    const priceStr = price.toLocaleString("en-US", {
+      minimumFractionDigits: 2, maximumFractionDigits: 2,
+    });
     const content = [
-      `## 当前价格: $${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      `**当前价格：$${priceStr}**`,
+      `24h涨跌：${change24h >= 0 ? "+" : ""}${change24h.toFixed(2)}%`,
       ``,
-      `24h涨跌: ${change24h >= 0 ? "+" : ""}${change24h.toFixed(2)}%`,
-      ``,
-      `系统运行正常 | ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}`,
+      `系统运行正常`,
     ].join("\n");
     return this.send(`${emoji} BTC行情播报 $${Math.round(price).toLocaleString()}`, content);
   }
 }
 
-module.exports = { WeChatNotifier };
+module.exports = { FeishuNotifier };

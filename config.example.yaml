@@ -12,11 +12,13 @@ binance:
   testnet: true
 
 # --- 通知配置 ---
-# Server酱：https://sct.ftqq.com/
-# 1. 注册登录后，在 "消息通道" 中获取 SendKey
+# 飞书机器人 Webhook：https://open.feishu.cn/
+# 1. 在飞书中创建一个群聊
+# 2. 群设置 → 群机器人 → 添加机器人 → 自定义机器人
+# 3. 复制 Webhook 地址填入下方
 notification:
-  # Server酱 SendKey（免费推送到微信）
-  server_chan_key: "YOUR_SERVERCHAN_SENDKEY"
+  # 飞书机器人 Webhook URL
+  feishu_webhook: "YOUR_FEISHU_WEBHOOK_URL"
   # 通知间隔（分钟）：同一方向的信号至少间隔这么久
   cooldown_minutes: 30
   # 价格变动阈值(%): 小于此百分比不重复推送

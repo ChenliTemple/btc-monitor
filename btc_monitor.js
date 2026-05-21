@@ -7,14 +7,14 @@
  * - 连接币安 WebSocket 获取实时K线
  * - 计算 RSI / MACD / 布林带 / 均线 指标
  * - 多指标综合判断买卖时机
- * - 通过 Server酱 推送到微信
+ * - 通过飞书机器人推送通知
  */
 
 const fs = require("fs");
 const yaml = require("js-yaml");
 const { BinanceClient } = require("./binance_client");
 const { IndicatorCalculator } = require("./indicators");
-const { WeChatNotifier } = require("./notifier");
+const { FeishuNotifier } = require("./notifier");
 const { SignalEngine } = require("./signal_engine");
 
 // ─── 日志工具 ─────────────────────────────────
@@ -44,12 +44,12 @@ class BTCMonitor {
     this.indicators = new IndicatorCalculator(this.config);
     this.signalEngine = new SignalEngine(this.config);
 
-    const sendKey = this.config.notification.server_chan_key;
-    this.notifier = (sendKey && sendKey !== "YOUR_SERVERCHAN_SENDKEY")
-      ? new WeChatNotifier(sendKey) : null;
+    const webhook = this.config.notification.feishu_webhook;
+    this.notifier = (webhook && webhook !== "YOUR_FEISHU_WEBHOOK_URL")
+      ? new FeishuNotifier(webhook) : null;
 
     if (!this.notifier) {
-      log("WARN", "未配置 Server酱 SendKey，通知不可用！请编辑 config.yaml");
+      log("WARN", "未配置飞书 Webhook，通知不可用！请编辑 config.yaml");
     }
 
     this._lastStatusTime = null;
