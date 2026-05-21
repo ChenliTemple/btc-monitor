@@ -2,8 +2,8 @@ name: BTC Monitor
 
 on:
   schedule:
-    # 每15分钟运行一次 (避开整点和半点)
-    - cron: "3,18,33,48 * * * *"
+    # 每5分钟运行一次 (GitHub Actions 最短间隔)
+    - cron: "*/5 * * * *"
   # 支持手动触发
   workflow_dispatch:
 
