@@ -1,0 +1,54 @@
+# ============================================
+# 比特币实时监控系统 - 配置文件
+# ============================================
+
+# --- 币安API配置 ---
+# 在币安创建API Key: https://www.binance.com/zh-CN/my/settings/api-management
+# 建议只开启 "读取" 权限，不开启交易和提现权限
+binance:
+  api_key: "YOUR_BINANCE_API_KEY"
+  api_secret: "YOUR_BINANCE_API_SECRET"
+  # 使用测试网络 (建议首次用测试网验证)
+  testnet: true
+
+# --- 通知配置 ---
+# Server酱：https://sct.ftqq.com/
+# 1. 注册登录后，在 "消息通道" 中获取 SendKey
+notification:
+  # Server酱 SendKey（免费推送到微信）
+  server_chan_key: "YOUR_SERVERCHAN_SENDKEY"
+  # 通知间隔（分钟）：同一方向的信号至少间隔这么久
+  cooldown_minutes: 30
+  # 价格变动阈值(%): 小于此百分比不重复推送
+  price_change_threshold_pct: 1.0
+
+# --- 交易对配置 ---
+trading:
+  symbol: "BTCUSDT"
+  suggested_position: 0.001
+
+# --- K线周期 ---
+# 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d
+kline_interval: "15m"
+
+# --- 技术指标参数 ---
+indicators:
+  rsi:
+    period: 14
+    oversold: 30
+    overbought: 70
+  macd:
+    fast: 12
+    slow: 26
+    signal: 9
+  bollinger:
+    period: 20
+    std_dev: 2.0
+  ma:
+    short_period: 5
+    long_period: 20
+
+# --- 信号阈值 ---
+signal:
+  strong_threshold: 3
+  weak_threshold: 2

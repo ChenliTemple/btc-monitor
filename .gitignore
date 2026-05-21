@@ -1,0 +1,4 @@
+node_modules/
+config.yaml
+btc_monitor.log
+*.log

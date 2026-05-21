@@ -1,0 +1,14 @@
+{
+  "name": "btc-monitor",
+  "version": "1.0.0",
+  "description": "比特币实时监控与买卖信号通知系统",
+  "main": "btc_monitor.js",
+  "scripts": {
+    "start": "node btc_monitor.js",
+    "test": "node test_signal.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "js-yaml": "^4.1.0"
+  }
+}
